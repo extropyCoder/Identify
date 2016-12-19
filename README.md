@@ -1,2 +1,2 @@
 # Sonbol
-Digital Identity on the blockchain
+Blockchain-backed, civilian-centered, electronic identity stamp.
