@@ -23,6 +23,7 @@ contract UserData is SimpleContract("UserData"){
         if(userIsRegistered(_accountNumber)==expectedValue) _;
     }
 
+    event userAdded(address);
 
     function UserData(){
 
@@ -39,7 +40,10 @@ contract UserData is SimpleContract("UserData"){
 
         userData[_accountNumber] =
             Data({datetime :_datetime,score:_score,IDRef:_IDRef,name :_name,userAddress: _userAddress});
-    }
+            registeredAccounts.push(_accountNumber);
+            userAdded(_accountNumber);
+
+        }
 
     function getUserData(address _acccountNumber) userRegistration(_acccountNumber, true) external constant returns (int256,int,bytes32,bytes32,bytes32) {
 
@@ -56,7 +60,9 @@ contract UserData is SimpleContract("UserData"){
      return false;
     }
 
-
+    function getRegisteredCount() constant external returns (uint){
+      return registeredAccounts.length;
+    }
 
     function getHashValues(address _accountNumber) constant external returns (bytes32){
         return hashedValues[_accountNumber];
