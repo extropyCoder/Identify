@@ -14,8 +14,18 @@ contract Owned  {
 }
 
 contract Mortal is Owned {
-  function kill() onlyOwner {
-    suicide(owner);
+    bool public active;
+    modifier checkState(bool state){if (active==state) _;}
+    function setActive() onlyOwner{
+      active=true;
+
+  }
+    function setInactive() onlyOwner{
+      active=false;
+
+  }
+    function kill() onlyOwner {
+        suicide(owner);
   }
 // as a default don't want ether
     function() {
@@ -23,30 +33,24 @@ contract Mortal is Owned {
     }
 }
 
-contract Active is Owned{
-  bool public active;
-
-  modifier isActive(){if (active==true || msg.sender==owner) _;}
-
-  function setActive(bool _active) onlyOwner {
-    active = _active;
-  }
-
-}
 
 
 contract NameRegistry is Owned,Mortal{
 
   mapping (string=>address) registry;
-
+  event MappingAdded(string);
+  event OwnerDone(address);
   function NameRegistry(){
+      setActive();
   }
 
-  function addMapping(string _name,address _address) external onlyOwner {
+  function addMapping(string _name,address _address) external  checkState(true) {
+      OwnerDone(msg.sender);
         registry[_name]=_address;
+        MappingAdded(_name);
   }
 
-  function getMapping(string _name) external constant returns (address){
+  function getMapping(string _name) checkState(true) external constant returns (address){
         return registry[_name];
   }
 
@@ -54,15 +58,12 @@ contract NameRegistry is Owned,Mortal{
 }
 
 
-contract SimpleContract is Mortal,Active{
-    NameRegistry registry;
+contract SimpleContract is Mortal{
     string public contractName;
 
-    function SimpleContract(NameRegistry _registry, string _contractName){
-        registry = _registry;
+    function SimpleContract(string _contractName){
         contractName = _contractName;
-        active = true;
-
     }
+
 
 }
