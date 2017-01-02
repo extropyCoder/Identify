@@ -1,6 +1,7 @@
   var defs = require('./defs.json');
   var Web3 = require('web3');
   var CryptoJS = require("crypto-js");
+  var lightwallet = require('eth-lightwallet');
   var express = require('express');
 
   var app = express();
@@ -60,6 +61,8 @@ web3.eth.getAccounts(function(err, accs) {
  console.log("contract at " + uDataAddress);
  setUpFilter(userDataContract);
 
+
+
 }
 
 
@@ -108,3 +111,14 @@ function decrypt (ciphertext,key){
   var bytes  = CryptoJS.AES.decrypt(ciphertext.toString(), key);
   return bytes;
 }
+
+function createEthereumAccount(password,callback){
+  var secretSeed = lightwallet.keystore.generateRandomSeed();
+  lightwallet.keystore.deriveKeyFromPassword(password, function (err, pwDerivedKey) {
+
+  var ks = new lightwallet.keystore(secretSeed, pwDerivedKey);
+  ks.generateNewAddress(pwDerivedKey);
+  newAddress = ks.getAddresses();
+  var newValues = {seed : secretSeed, address : newAddress};
+  callback(newValues);
+});
