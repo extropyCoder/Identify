@@ -64,6 +64,11 @@ contract UserData is SimpleContract("UserData"){
       return registeredAccounts.length;
     }
 
+    function addHashValues(address _accountNumber,bytes32 _hash) external onlyOwner accountIsValid(_accountNumber){
+        hashedValues[_accountNumber] = _hash;
+    }
+
+
     function getHashValues(address _accountNumber) constant external returns (bytes32){
         return hashedValues[_accountNumber];
     }
