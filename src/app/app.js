@@ -101,7 +101,9 @@ function addUser(account,datetime,score,IDRef,name,address){
   var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
 }
 
-
+function addHashForUser(account,hash){
+  var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
+}
 function encrypt (plaintext,key){
   var ciphertext = CryptoJS.AES.encrypt(plaintext, key);
   return ciphertext;
@@ -122,3 +124,4 @@ function createEthereumAccount(password,callback){
   var newValues = {seed : secretSeed, address : newAddress};
   callback(newValues);
 });
+}
