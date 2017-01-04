@@ -5,26 +5,42 @@
   var express = require('express');
 
   var app = express();
+  var bodyParser = require('body-parser')
+  app.use( bodyParser.json() );       // to support JSON-encoded bodies
+  app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+  }));
 
   var userDataContract;
 
-
+  // routing
   app.use(express.static('static'));
-  app.post('/userData', userFunction);
-  app.get('/userData', userFunction);
+  app.post('/userData', submitUser);
+  app.get('/userData', getUser);
 
   app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 
   });
 
-  function userFunction(req, res){
+  connectToChain();
+
+  function getUser(req, res){
     console.log(' in user function');
-    connectToChain();
+
     score = getUserScore();
     return score;
 
   }
+
+  function submitUser(req, res){
+    console.log(' in submit function');
+    console.log(req.body.fname);
+    score = getUserScore();
+    return score;
+
+  }
+
 
 function connectToChain(){
   if (typeof web3 !== 'undefined') {
@@ -101,8 +117,9 @@ function addUser(account,datetime,score,IDRef,name,address){
   var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
 }
 
-function addHashForUser(account,hash){
-  var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
+function addHashForUser(account,datetime,score,IDRef,name,address){
+  var hash = SHA256( score + IDRef + name + address);
+  var Tx = userDataContract.addHashValues.sendTransaction(account, hash,{from: web3.eth.accounts[0],gas: 2000000});
 }
 function encrypt (plaintext,key){
   var ciphertext = CryptoJS.AES.encrypt(plaintext, key);
