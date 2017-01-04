@@ -12,6 +12,7 @@
   }));
 
   var userDataContract;
+  var scorerContract;
 
   // routing
   app.use(express.static('static'));
@@ -74,8 +75,15 @@ web3.eth.getAccounts(function(err, accs) {
  var uC = web3.eth.contract(uDataAbi);
  userDataContract = uC.at(uDataAddress);
 
- console.log("contract at " + uDataAddress);
+ var scorerAbi = defs.scorerAbi;
+ var scorerAddress = defs.scorerAddress;
+ var sC = web3.eth.contract(scorerAbi);
+ scorerContract = sC.at(scorerAddress);
+
+
+ console.log(" user data contract at " + uDataAddress);
  setUpFilter(userDataContract);
+ setUpScorerFilter(scorerContract);
 
 
 
@@ -100,6 +108,25 @@ web3.eth.getAccounts(function(err, accs) {
   }
 }
 
+function setUpScorerFilter(){
+    var filter = web3.eth.filter([scorerContract.scoreCalculated]);
+    filter.watch(scoreEvent);
+
+}
+function scoreEvent (error,result){
+ if(!error) {
+    console.log("Score Calculated");
+     var score =  result.data;
+     console.log("Score is " + score );
+
+  } else {
+    console.error(new Date() + " " + error);
+
+}
+}
+
+
+
 function getOwner(){
   var data = userDataContract.owner.call();
   console.log("Owner is " + (data.toString()));
@@ -112,6 +139,10 @@ function getOwner(){
      return score;
   }
 
+function calculateScore(metric1,metric2,metric3,metric4) {
+  var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
+
+}
 
 function addUser(account,datetime,score,IDRef,name,address){
   var Tx = userDataContract.addUserData.sendTransaction(account, datetime,score,IDRef,name, address,{from: web3.eth.accounts[0],gas: 2000000});
