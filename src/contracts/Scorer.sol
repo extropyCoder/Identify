@@ -7,7 +7,7 @@ int  [] public weights;
 int public normalisation;
 
 modifier indexIsValid (uint _index){if (_index < weights.length) _;}
-
+event scoreCalculated(address,int);
 
 // metric1 = face difference
 // metric2 = GPS / Address difference
