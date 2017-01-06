@@ -16,8 +16,14 @@
 
   // routing
   app.use(express.static('static'));
+  app.get('/recogniseFace', recogniseFace);
+  app.get('/OCR', OCRText);
+  app.get('/geolocate', geolocate);
+
   app.post('/userData', submitUser);
-  app.get('/userData', getUser);
+  app.get('/userScore', getUser);
+
+  app.get('/userAccount', createAccount);
 
   app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
@@ -26,21 +32,55 @@
 
   connectToChain();
 
-  function getUser(req, res){
-    console.log(' in user function');
-
-    score = getUserScore();
+  function getUserScore(req, res){
+    // return score for this user
+    score = getUserScore(req.body.account);
     return score;
 
   }
 
+  // this submits the user details onto the blockchain.
+  // the fields are encrypted first
   function submitUser(req, res){
-    console.log(' in submit function');
-    console.log(req.body.fname);
-    score = getUserScore();
-    return score;
+
+
+    var account = req.body.account;
+    var key = req.body.key;
+    var score = getUserScore(account);
+    var ID = req.body.ID;
+    var name = req.body.name;
+    var address = req.body.address;
+    var datetime = new Date().toLocaleString();
+
+
+    // first create a hash of the unencrypted values
+    // so that we can prove that this score belongs to us
+    addHashForUser(account,datetime,score,ID,name,address);
+
+    // now add the encrypted user data to the blockchain
+    addUser(encrypt(account.key),encrypt(datetime,key),encrypt(score,key),encrypt(ID,key),encrypt(name,key),encrypt(address,key));
+
 
   }
+function recogniseFace(req, res){
+  // shell to open face to get difference score
+}
+function OCRText(req, res){
+  // process with tessaract to get adddress details etc.
+}
+function geolocate(req, res){
+  // use geolocation in score
+}
+
+function createAccount(req, res){
+  var password = req.body.password;
+  createEthereumAccount(password,handleNewAccount);
+}
+
+function handleNewAccount(){
+  // new account created
+  // need to passback account number to user
+}
 
 
 function connectToChain(){
@@ -125,17 +165,9 @@ function scoreEvent (error,result){
 }
 }
 
-
-
-function getOwner(){
-  var data = userDataContract.owner.call();
-  console.log("Owner is " + (data.toString()));
-}
-
   function getUserScore(userAddress){
      var data = userDataContract.getUserData.call(userAddress);
      var score = data[1].toString();
-     console.log("Score is " + score);
      return score;
   }
 
